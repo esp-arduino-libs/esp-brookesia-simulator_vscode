@@ -1,0 +1,99 @@
+{
+	// https://code.visualstudio.com/docs/editor/workspaces
+	// https://code.visualstudio.com/docs/editor/multi-root-workspaces
+	// https://code.visualstudio.com/docs/editor/variables-reference
+
+	"folders": [
+		{
+			"path": "."
+		},
+	],
+	// extensions.json section
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",              // common C/C++ support
+			"ms-vscode.cpptools-themes",       // general C/C++ theme
+		],
+		"unwantedRecommendations": [
+		]
+	},
+	// settings.json section
+	"settings": {
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": true,
+		"cmake.configureOnOpen": false,
+		"files.associations": {
+			"*.h": "c",
+			"*.hpp": "cpp",
+			"*.c": "c",
+			"*.cpp": "cpp",
+			"array": "cpp",
+			"string": "cpp",
+			"string_view": "cpp"
+		},
+	},
+	// tasks.json section
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"type": "shell",
+				"label": "Build",
+				"linux": {
+					"command": "bear -- make",
+				},
+				"osx": {
+					"command": "arch -x86_64 bear -- make",
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": {
+					"owner": "cpp",
+					"fileLocation": ["relative", "${workspaceFolder}"],
+					"pattern": {
+						"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				}
+			},
+		],
+	},
+	// launch.json section
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+		{
+			"name": "g++ build and debug active file",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/bin/esp-ui-simulator_vscode",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": false,
+			"linux": {
+				"MIMode": "gdb",
+			},
+			"osx": {
+				"MIMode": "lldb"
+			},
+			"setupCommands": [
+			{
+				"description": "Enable pretty-printing for gdb",
+				"text": "-enable-pretty-printing",
+				"ignoreFailures": true
+			}
+			],
+			"preLaunchTask": "Build"
+		}
+		]
+	},
+}
