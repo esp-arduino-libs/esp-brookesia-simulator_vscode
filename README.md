@@ -4,6 +4,8 @@
 
 esp-ui-simulator_vscode is a [VSCode](https://code.visualstudio.com) project that enables running [LVGL](https://github.com/lvgl/lvgl) and [esp-ui](https://github.com/espressif/esp-ui) on a PC. It is used to simulate the esp-ui system UI, making it convenient for users to debug stylesheets and apps.
 
+esp-ui-simulator_vscode is a port and modification based on [lv_port_pc_vscode](https://github.com/lvgl/lv_port_pc_vscode), designed to support the compilation of C++ files.
+
 > [!WARNING]
 > * esp-ui-simulator_vscode has been tested only on `Linux` and `MacOS`, but may also work on `Windows WSL`.
 
