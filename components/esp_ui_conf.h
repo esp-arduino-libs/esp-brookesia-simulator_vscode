@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////// Debug /////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Assert when check result failed. 0: diable, 1: enable */
+/* Assert when check result failed. 0: disable, 1: enable */
 #define ESP_UI_CHECK_RESULT_ASSERT     (0)
 
 /**
@@ -30,7 +30,7 @@
  *      - ESP_UI_LOG_LEVEL_NONE:  No log output (least verbose)
  *
  */
-#define ESP_UI_LOG_LEVEL        (ESP_UI_LOG_LEVEL_INFO)
+#define ESP_UI_LOG_LEVEL        (ESP_UI_LOG_LEVEL_DEBUG)
 
 /* Enable debug logs for modules */
 #define ESP_UI_LOG_ENABLE_DEBUG_CORE                (1)
@@ -46,10 +46,10 @@
 // Widgets
 #if ESP_UI_LOG_ENABLE_DEBUG_WIDGETS
 #define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_APP_LAUNCHER   (1)
-#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_RECENTS_SCREEN   (1)
-#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_GESTURE     (1)
-#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_NAVIGATION  (1)
-#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_STATUS_BAR  (1)
+#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_RECENTS_SCREEN (1)
+#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_GESTURE        (0)
+#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_NAVIGATION     (1)
+#define ESP_UI_LOG_ENABLE_DEBUG_WIDGETS_STATUS_BAR     (1)
 #endif
 // Phone
 #if ESP_UI_LOG_ENABLE_DEBUG_PHONE
@@ -62,7 +62,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////// Memory /////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define ESP_UI_MEMORY_USE_CUSTOM                    (0)
+#define ESP_UI_MEMORY_USE_CUSTOM    (0)
 #if ESP_UI_MEMORY_USE_CUSTOM == 0
 #define ESP_UI_MEMORY_INCLUDE       <stdlib.h>
 #define ESP_UI_MEMORY_MALLOC        malloc
@@ -91,8 +91,7 @@
  * configured version of LVGL. (If multiple options are uncommented, a compilation error will occur)
  *
  */
-                                        // | Squareline |  LVGL  |
-// #define ESP_UI_SQ1_3_4_LV8_2_0       // |   1.3.4    | 8.2.0  |
+// | Squareline |  LVGL  |
 // #define ESP_UI_SQ1_3_4_LV8_3_3       // |   1.3.4    | 8.3.3  |
 // #define ESP_UI_SQ1_3_4_LV8_3_4       // |   1.3.4    | 8.3.4  |
 // #define ESP_UI_SQ1_3_4_LV8_3_6       // |   1.3.4    | 8.3.6  |
