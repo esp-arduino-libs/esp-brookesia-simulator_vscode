@@ -20,3 +20,7 @@
 	path = components/esp-ui-stylesheet/esp-ui-phone_1024_600_stylesheet
 	url = https://github.com/esp-arduino-libs/esp-ui-phone_1024_600_stylesheet.git
 	branch = master
+[submodule "components/esp-ui-stylesheet/esp-ui-phone_320_240_stylesheet"]
+	path = components/esp-ui-stylesheet/esp-ui-phone_320_240_stylesheet
+	url = https://github.com/esp-arduino-libs/esp-ui-phone_320_240_stylesheet.git
+	branch = master

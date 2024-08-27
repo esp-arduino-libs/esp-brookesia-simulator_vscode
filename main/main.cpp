@@ -43,6 +43,9 @@
   #elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
     #include "esp-ui-phone_480_480_stylesheet/src/esp_ui_phone_480_480_stylesheet.h"
     #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_480_480_DARK_STYLESHEET()
+  #elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
+    #include "esp-ui-phone_320_240_stylesheet/src/esp_ui_phone_320_240_stylesheet.h"
+    #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_320_240_DARK_STYLESHEET()
   #endif
 #endif
 
@@ -126,14 +129,13 @@ int main(int argc, char **argv)
     // ESP_UI_CHECK_FALSE_RETURN(phone->getCoreHome().showContainerBorder(), 1, "Show container border failed");
 
     /* Install apps */
-    bool enable_navigation_bar = phone->getStylesheet()->home.flags.enable_navigation_bar;
-    PhoneAppSimpleConf *phone_app_simple_conf = new PhoneAppSimpleConf(true, enable_navigation_bar);
+    PhoneAppSimpleConf *phone_app_simple_conf = new PhoneAppSimpleConf(true, true);
     ESP_UI_CHECK_NULL_RETURN(phone_app_simple_conf, 1, "Create phone app simple conf failed");
     ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_simple_conf) >= 0), 1, "Install phone app simple conf failed");
-    PhoneAppComplexConf *phone_app_complex_conf = new PhoneAppComplexConf(true, enable_navigation_bar);
+    PhoneAppComplexConf *phone_app_complex_conf = new PhoneAppComplexConf(true, true);
     ESP_UI_CHECK_NULL_RETURN(phone_app_complex_conf, 1, "Create phone app complex conf failed");
     ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_complex_conf) >= 0), 1, "Install phone app complex conf failed");
-    PhoneAppSquareline *phone_app_squareline = new PhoneAppSquareline(true, enable_navigation_bar);
+    PhoneAppSquareline *phone_app_squareline = new PhoneAppSquareline(true, true);
     ESP_UI_CHECK_NULL_RETURN(phone_app_squareline, 1, "Create phone app squareline failed");
     ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_squareline) >= 0), 1, "Install phone app squareline failed");
 
@@ -164,9 +166,15 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     time(&now);
     localtime_r(&now, &timeinfo);
     is_time_pm = (timeinfo.tm_hour >= 12);
-
     ESP_UI_CHECK_FALSE_EXIT(phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
                             "Refresh status bar failed");
+
+    lv_mem_monitor_t mon;
+    lv_mem_monitor(&mon);
+    uint32_t free_kb = mon.free_size / 1024;
+    uint32_t total_kb = mon.total_size / 1024;
+    ESP_UI_CHECK_FALSE_EXIT(phone->getHome().getRecentsScreen()->setMemoryLabel(free_kb, total_kb, 0, 0),
+                            "Refresh memory label failed");
 }
 
 /**
