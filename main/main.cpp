@@ -73,7 +73,15 @@ static bool end_tick = false; /* flag to terminate thread */
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
+void get_local_time(struct tm *timeinfo, time_t *rawtime) {
+#ifdef _WIN32
+    // Windows 使用 localtime_s
+    localtime_s(timeinfo, rawtime);
+#else
+    // POSIX 系统使用 localtime_r
+    localtime_r(rawtime, timeinfo);
+#endif
+}
 /*********************
  *      DEFINES
  *********************/
@@ -164,7 +172,8 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     ESP_UI_Phone *phone = (ESP_UI_Phone *)t->user_data;
 
     time(&now);
-    localtime_r(&now, &timeinfo);
+    // localtime_r(&now, &timeinfo);
+    get_local_time(&timeinfo, &now);
     is_time_pm = (timeinfo.tm_hour >= 12);
     ESP_UI_CHECK_FALSE_EXIT(phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
                             "Refresh status bar failed");
