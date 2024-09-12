@@ -15,13 +15,9 @@
 #include "lv_drv_conf.h"
 #include "lvgl/lvgl.h"
 #include "lvgl/examples/lv_examples.h"
-#if USE_SDL
 #define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" issue*/
 #include <SDL2/SDL.h>
 #include "lv_drivers/sdl/sdl.h"
-#elif USE_X11
-#include "lv_drivers/x11/x11.h"
-#endif
 #include <time.h>
 #include "esp_brookesia.hpp"
 /* These are built-in app examples in `esp-brookesia` library */
@@ -66,7 +62,15 @@ static bool end_tick = false; /* flag to terminate thread */
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
+void get_local_time(struct tm *timeinfo, time_t *rawtime) {
+#ifdef _WIN32
+    // For Windows systems
+    localtime_s(timeinfo, rawtime);
+#else
+    // For POSIX systems
+    localtime_r(rawtime, timeinfo);
+#endif
+}
 /*********************
  *      DEFINES
  *********************/
@@ -102,6 +106,8 @@ int main(int argc, char **argv)
 
     /* Initialize the HAL (display, input devices, tick) for LVGL */
     hal_init();
+
+    ESP_BROOKESIA_LOGI("Using display resolution: %dx%d", DISP_HOR_RES, DISP_VER_RES);
 
     /* Create a phone object */
     ESP_Brookesia_Phone *phone = new ESP_Brookesia_Phone(disp);
@@ -157,7 +163,7 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     ESP_Brookesia_Phone *phone = (ESP_Brookesia_Phone *)t->user_data;
 
     time(&now);
-    localtime_r(&now, &timeinfo);
+    get_local_time(&timeinfo, &now);
     is_time_pm = (timeinfo.tm_hour >= 12);
     ESP_BROOKESIA_CHECK_FALSE_EXIT(phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
                             "Refresh status bar failed");

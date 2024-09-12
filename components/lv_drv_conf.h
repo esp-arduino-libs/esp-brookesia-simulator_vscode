@@ -15,8 +15,12 @@
 
 #include "lv_conf.h"
 
+#ifndef DISP_HOR_RES
 #define DISP_HOR_RES  (1024)
+#endif
+#ifndef DISP_VER_RES
 #define DISP_VER_RES  (600)
+#endif
 
 /*********************
  * DELAY INTERFACE
