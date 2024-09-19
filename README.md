@@ -1,19 +1,23 @@
-# ESP-UI PC Simulator with VSCode
+# ESP-Brookesia PC Simulator with VSCode
 
 * [中文版本](./README_CN.md)
 
-esp-ui-simulator_vscode is a [VSCode](https://code.visualstudio.com) project that enables running [LVGL](https://github.com/lvgl/lvgl) and [esp-ui](https://github.com/espressif/esp-ui) on a PC. It is used to simulate the esp-ui system UI, making it convenient for users to debug stylesheets and apps.
+esp-brookesia-simulator_vscode is a [VSCode](https://code.visualstudio.com) project that enables running [LVGL](https://github.com/lvgl/lvgl) and [ESP-Brookesia](https://github.com/espressif/esp-brookesia) on a PC. It is used to simulate the esp-brookesia system UI, making it convenient for users to debug stylesheets and apps.
 
-esp-ui-simulator_vscode is a port and modification based on [lv_port_pc_vscode](https://github.com/lvgl/lv_port_pc_vscode), designed to support the compilation of C++ files.
+esp-brookesia-simulator_vscode is a port and modification based on [lv_port_pc_vscode](https://github.com/lvgl/lv_port_pc_vscode), designed to support the compilation of C++ files.
 
 > [!WARNING]
-> * esp-ui-simulator_vscode has been tested only on `Linux` and `MacOS`, but may also work on `Windows WSL`.
+> * esp-brookesia-simulator_vscode has been tested only on `Linux`, `MacOS` and `Windows WSL`.
 
 ## Dependencies
 
 ### Build Tools
 
-Ensure that `GCC`, `GDB`, `bear`, and `make` are installed on your system. All requirements are pre-configured in the [.workspace](./esp-ui-simulator_vscode.code-workspace) file (simply double-click this file to open the project).
+On Linux, you can install `GCC`, `GDB`, `bear` and `make` via terminal:
+
+```bash
+sudo apt-get update && sudo apt-get install -y gcc gdb bear make
+```
 
 ### Graphics Drivers
 
@@ -42,17 +46,17 @@ sudo apt-get update && sudo apt-get install -y libx11-dev
 1. Clone the project and related submodules:
 
 ```bash
-git clone --recursive https://github.com/esp-arduino-libs/esp-ui-simulator_vscode
+git clone --recursive https://github.com/esp-arduino-libs/esp-brookesia-simulator_vscode
 ```
 
-2. Double-clicking the VSCode workspace file [esp-ui-simulator_vscode.code-workspace](./esp-ui-simulator_vscode.code-workspace) to open the project.
+2. Double-clicking the VSCode workspace file [esp-brookesia-simulator_vscode.code-workspace](./esp-brookesia-simulator_vscode.code-workspace) to open the project.
 
-3. Place your apps in the [components/esp-ui-app](./components/esp-ui-app) directory and create and install them in the `main()` function in [main/main.cpp](./main/main.cpp).
-
-4. Press F5 to build and debug. The system UI of esp-ui should appear in a new window, and you can access all debugging features of VSCode through GDB.
+3. Press F5 to build and debug. The system UI of ESP-Brookesia should appear in a new window, and you can access all debugging features of VSCode through GDB.
 
 > [!NOTE]
 > * To allow temporary modifications between the simulator and device code, a global definition `SIMULATOR=1` has been added to the Makefile.
+> * The project will by default compile the `.c` 和 `.cpp` files located in the [components/esp-brookesia-app](./components/esp-brookesia-app) directory and include this directory as a header file directory. Users can place their custom apps in this directory.
+> * The project will by default compile the `.c` 和 `.cpp` files located in the [components/esp-brookesia-stylesheet](./components/esp-brookesia-stylesheet) directory and include this directory as a header file directory. Users can place their custom stylesheets in this directory.
 
 > [!WARNING]
-> * Please use the workspace file [esp-ui-simulator_vscode.code-workspace](./esp-ui-simulator_vscode.code-workspace) to open the project, as it contains all the configurations for building and debugging. Otherwise, you won't be able to directly use the `F5` key to build and debug.
+> * Please use the workspace file [esp-brookesia-simulator_vscode.code-workspace](./esp-brookesia-simulator_vscode.code-workspace) to open the project, as it contains all the configurations for building and debugging. Otherwise, you won't be able to directly use the `F5` key to build and debug.

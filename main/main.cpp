@@ -23,8 +23,8 @@
 #include "lv_drivers/x11/x11.h"
 #endif
 #include <time.h>
-#include "esp_ui.hpp"
-/* These are built-in app examples in `esp-ui` library */
+#include "esp_brookesia.hpp"
+/* These are built-in app examples in `esp-brookesia` library */
 #include "app_examples/phone/simple_conf/src/phone_app_simple_conf.hpp"
 #include "app_examples/phone/complex_conf/src/phone_app_complex_conf.hpp"
 #include "app_examples/phone/squareline/src/phone_app_squareline.hpp"
@@ -32,21 +32,14 @@
 /*********************
  *      DEFINES
  *********************/
-#define EXAMPLE_USE_EXTERNAL_STYLESHEET   (1)
-#if EXAMPLE_USE_EXTERNAL_STYLESHEET
-  #if (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
-    #include "esp-ui-phone_1024_600_stylesheet/src/esp_ui_phone_1024_600_stylesheet.h"
-    #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_1024_600_DARK_STYLESHEET()
-  #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
-    #include "esp-ui-phone_800_480_stylesheet/src/esp_ui_phone_800_480_stylesheet.h"
-    #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_800_480_DARK_STYLESHEET()
-  #elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
-    #include "esp-ui-phone_480_480_stylesheet/src/esp_ui_phone_480_480_stylesheet.h"
-    #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_480_480_DARK_STYLESHEET()
-  #elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
-    #include "esp-ui-phone_320_240_stylesheet/src/esp_ui_phone_320_240_stylesheet.h"
-    #define EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET()   ESP_UI_PHONE_320_240_DARK_STYLESHEET()
-  #endif
+#if (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
+  #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1024_600_DARK_STYLESHEET()
+#elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
+  #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_800_480_DARK_STYLESHEET()
+#elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
+  #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_480_480_DARK_STYLESHEET()
+#elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
+  #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_320_240_DARK_STYLESHEET()
 #endif
 
 /**********************
@@ -111,36 +104,36 @@ int main(int argc, char **argv)
     hal_init();
 
     /* Create a phone object */
-    ESP_UI_Phone *phone = new ESP_UI_Phone(disp);
-    ESP_UI_CHECK_NULL_RETURN(phone, 1, "Create phone failed");
+    ESP_Brookesia_Phone *phone = new ESP_Brookesia_Phone(disp);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(phone, 1, "Create phone failed");
 
-#ifdef EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET
+#ifdef EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET
     /* Add external stylesheet and activate it */
-    ESP_UI_PhoneStylesheet_t *phone_stylesheet = new ESP_UI_PhoneStylesheet_t EXAMPLE_ESP_UI_PHONE_DARK_STYLESHEET();
-    ESP_UI_CHECK_NULL_RETURN(phone_stylesheet, 1, "Create phone stylesheet failed");
-    ESP_UI_CHECK_FALSE_RETURN(phone->addStylesheet(phone_stylesheet), 1, "Add phone stylesheet failed");
-    ESP_UI_CHECK_FALSE_RETURN(phone->activateStylesheet(phone_stylesheet), 1, "Activate phone stylesheet failed");
+    ESP_Brookesia_PhoneStylesheet_t *phone_stylesheet = new ESP_Brookesia_PhoneStylesheet_t EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET();
+    ESP_BROOKESIA_CHECK_NULL_RETURN(phone_stylesheet, 1, "Create phone stylesheet failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->addStylesheet(phone_stylesheet), 1, "Add phone stylesheet failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->activateStylesheet(phone_stylesheet), 1, "Activate phone stylesheet failed");
     delete phone_stylesheet;
 #endif
 
     /* Configure and begin the phone */
-    ESP_UI_CHECK_FALSE_RETURN(phone->setTouchDevice(mouse_indev), 1, "Set touch device failed");
-    ESP_UI_CHECK_FALSE_RETURN(phone->begin(), 1, "Begin failed");
-    // ESP_UI_CHECK_FALSE_RETURN(phone->getCoreHome().showContainerBorder(), 1, "Show container border failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->setTouchDevice(mouse_indev), 1, "Set touch device failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->begin(), 1, "Begin failed");
+    // ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->getCoreHome().showContainerBorder(), 1, "Show container border failed");
 
     /* Install apps */
     PhoneAppSimpleConf *phone_app_simple_conf = new PhoneAppSimpleConf(true, true);
-    ESP_UI_CHECK_NULL_RETURN(phone_app_simple_conf, 1, "Create phone app simple conf failed");
-    ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_simple_conf) >= 0), 1, "Install phone app simple conf failed");
+    ESP_BROOKESIA_CHECK_NULL_RETURN(phone_app_simple_conf, 1, "Create phone app simple conf failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(phone_app_simple_conf) >= 0), 1, "Install phone app simple conf failed");
     PhoneAppComplexConf *phone_app_complex_conf = new PhoneAppComplexConf(true, true);
-    ESP_UI_CHECK_NULL_RETURN(phone_app_complex_conf, 1, "Create phone app complex conf failed");
-    ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_complex_conf) >= 0), 1, "Install phone app complex conf failed");
+    ESP_BROOKESIA_CHECK_NULL_RETURN(phone_app_complex_conf, 1, "Create phone app complex conf failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(phone_app_complex_conf) >= 0), 1, "Install phone app complex conf failed");
     PhoneAppSquareline *phone_app_squareline = new PhoneAppSquareline(true, true);
-    ESP_UI_CHECK_NULL_RETURN(phone_app_squareline, 1, "Create phone app squareline failed");
-    ESP_UI_CHECK_FALSE_RETURN((phone->installApp(phone_app_squareline) >= 0), 1, "Install phone app squareline failed");
+    ESP_BROOKESIA_CHECK_NULL_RETURN(phone_app_squareline, 1, "Create phone app squareline failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(phone_app_squareline) >= 0), 1, "Install phone app squareline failed");
 
     /* Create a timer to update the clock */
-    ESP_UI_CHECK_NULL_RETURN(lv_timer_create(on_clock_update_timer_cb, 1000, phone), 1, "Create clock update timer failed");
+    ESP_BROOKESIA_CHECK_NULL_RETURN(lv_timer_create(on_clock_update_timer_cb, 1000, phone), 1, "Create clock update timer failed");
 
     while(1) {
         /* Periodically call the lv_task handler.
@@ -161,19 +154,19 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     time_t now;
     struct tm timeinfo;
     bool is_time_pm = false;
-    ESP_UI_Phone *phone = (ESP_UI_Phone *)t->user_data;
+    ESP_Brookesia_Phone *phone = (ESP_Brookesia_Phone *)t->user_data;
 
     time(&now);
     localtime_r(&now, &timeinfo);
     is_time_pm = (timeinfo.tm_hour >= 12);
-    ESP_UI_CHECK_FALSE_EXIT(phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
+    ESP_BROOKESIA_CHECK_FALSE_EXIT(phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
                             "Refresh status bar failed");
 
     lv_mem_monitor_t mon;
     lv_mem_monitor(&mon);
     uint32_t free_kb = mon.free_size / 1024;
     uint32_t total_kb = mon.total_size / 1024;
-    ESP_UI_CHECK_FALSE_EXIT(phone->getHome().getRecentsScreen()->setMemoryLabel(free_kb, total_kb, 0, 0),
+    ESP_BROOKESIA_CHECK_FALSE_EXIT(phone->getHome().getRecentsScreen()->setMemoryLabel(free_kb, total_kb, 0, 0),
                             "Refresh memory label failed");
 }
 

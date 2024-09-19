@@ -31,7 +31,12 @@
 			"array": "cpp",
 			"string": "cpp",
 			"string_view": "cpp",
-			"unordered_map": "cpp"
+			"unordered_map": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"unordered_set": "cpp",
+			"vector": "cpp",
+			"initializer_list": "cpp"
 		},
 	},
 	// tasks.json section
@@ -74,7 +79,7 @@
 			"name": "g++ build and debug active file",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/build/bin/esp-ui-simulator_vscode",
+			"program": "${workspaceFolder}/build/bin/esp-brookesia-simulator_vscode",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
