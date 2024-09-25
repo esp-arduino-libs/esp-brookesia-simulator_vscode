@@ -1,0 +1,39 @@
+name: Build Test Application
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    name: Build Test Application
+
+    container:
+      image: ubuntu:22.04
+      options: --user root
+
+    steps:
+      - name: Update apt and install Git 2.18+
+        run: |
+          apt-get update && apt-get upgrade -y
+          apt-get install -y git
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          apt-get install -y gcc gdb cmake make build-essential libsdl2-dev
+
+      - name: Build Application
+        working-directory: ./
+        run: |
+          cmake -B ./build && make -C ./build

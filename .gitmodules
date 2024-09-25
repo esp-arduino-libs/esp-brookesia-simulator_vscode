@@ -4,23 +4,7 @@
 [submodule "components/lv_drivers"]
 	path = components/lv_drivers
 	url = https://github.com/lvgl/lv_drivers
-[submodule "components/esp-ui"]
-	path = components/esp-ui
-	url = https://github.com/espressif/esp-ui.git
-	branch = master
-[submodule "components/esp-ui-stylesheet/esp-ui-phone_480_480_stylesheet"]
-	path = components/esp-ui-stylesheet/esp-ui-phone_480_480_stylesheet
-	url = https://github.com/esp-arduino-libs/esp-ui-phone_480_480_stylesheet.git
-	branch = master
-[submodule "components/esp-ui-stylesheet/esp-ui-phone_800_480_stylesheet"]
-	path = components/esp-ui-stylesheet/esp-ui-phone_800_480_stylesheet
-	url = https://github.com/esp-arduino-libs/esp-ui-phone_800_480_stylesheet.git
-	branch = master
-[submodule "components/esp-ui-stylesheet/esp-ui-phone_1024_600_stylesheet"]
-	path = components/esp-ui-stylesheet/esp-ui-phone_1024_600_stylesheet
-	url = https://github.com/esp-arduino-libs/esp-ui-phone_1024_600_stylesheet.git
-	branch = master
-[submodule "components/esp-ui-stylesheet/esp-ui-phone_320_240_stylesheet"]
-	path = components/esp-ui-stylesheet/esp-ui-phone_320_240_stylesheet
-	url = https://github.com/esp-arduino-libs/esp-ui-phone_320_240_stylesheet.git
+[submodule "components/esp-brookesia"]
+	path = components/esp-brookesia
+	url = https://github.com/espressif/esp-brookesia
 	branch = master
