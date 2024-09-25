@@ -51,10 +51,10 @@
                     "command": "cmake.exe -G 'MinGW Makefiles' -B ./build; mingw32-make.exe -C ./build",
                 },
                 "linux": {
-                    "command": "cmake -B ./build & make -C ./build",
+                    "command": "cmake -B ./build && make -C ./build",
                 },
                 "osx": {
-                    "command": "cmake -B ./build & arch -x86_64 make -C ./build",
+                    "command": "cmake -B ./build && arch -x86_64 make -C ./build",
                 },
                 "group": {
                     "kind": "build",

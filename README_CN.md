@@ -1,5 +1,7 @@
 # ESP-Brookesia PC VSCode 模拟器
 
+[![Build Test Application](https://github.com/esp-arduino-libs/esp-brookesia-simulator_vscode/actions/workflows/build_test.yml/badge.svg)](https://github.com/esp-arduino-libs/esp-brookesia-simulator_vscode/actions/workflows/build_test.yml)
+
 * [English Version](./README.md)
 
 ## 目录
