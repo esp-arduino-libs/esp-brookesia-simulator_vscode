@@ -8,3 +8,6 @@
 	path = components/esp-brookesia
 	url = https://github.com/espressif/esp-brookesia
 	branch = master
+[submodule "components/esp-brookesia-apps"]
+	path = components/esp-brookesia-apps
+	url = https://github.com/esp-arduino-libs/esp-brookesia-apps.git
