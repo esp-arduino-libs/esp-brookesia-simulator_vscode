@@ -4,13 +4,15 @@ project(esp_brookesia_simulator_vscode  LANGUAGES C CXX)
 
 # Set definitions
 set(SIMULATOR_DEF "-DSIMULATOR=1")                      # Flag for simulator
-set(DISP_DEF "-DDISP_HOR_RES=1024 -DDISP_VER_RES=600")  # Resolution of the display
+set(DISP_DEF "-DDISP_HOR_RES=480 -DDISP_VER_RES=480")  # Resolution of the display
 set(LVGL_DEF "-DLV_CONF_INCLUDE_SIMPLE")                # Used for LVGL related codes
 set(LV_DRIVERS_DEF "-DUSE_SDL")                         # Used for lv_drivers related codes
 set(ESP_BROOKESIA_DEF "-DESP_BROOKESIA_KCONFIG_IGNORE") # Used for ESP-Brookesia related codes
 if(RUN_TEST)
 set(SIMULATOR_DEF "${SIMULATOR_DEF} -DRUN_TEST=1")                      # Flag for simulator
 endif()
+set(ESP_BROOKESIA_APP_DEF "-DESP_BROOKESIA_APP_PHONE_SETTINGS_SIMULATOR -DESP_BROOKESIA_APPS_PHONE_SETTINGS_KCONFIG_IGNORE")
+                                                        # Used for ESP-Brookesia apps related codes
 # Set C/CXX toolchain
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CMAKE_C_COMPILER /usr/bin/gcc)
@@ -49,7 +51,7 @@ set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/components)
 set(LVGL_DIR ${COMPONENTS_DIR}/lvgl)
 set(LV_DRIVERS_DIR ${COMPONENTS_DIR}/lv_drivers)
 set(ESP_BROOKESIA_DIR ${COMPONENTS_DIR}/esp-brookesia/src)
-set(ESP_BROOKESIA_APP_DIR ${COMPONENTS_DIR}/esp-brookesia-app)
+set(ESP_BROOKESIA_APP_DIR ${COMPONENTS_DIR}/esp-brookesia-apps/src)
 set(ESP_BROOKESIA_STYLESHEET_DIR ${COMPONENTS_DIR}/esp-brookesia-stylesheet)
 
 # Include componets directories
@@ -77,7 +79,8 @@ file(GLOB_RECURSE ESP_BROOKESIA_STYLESHEET_SRCS                     # ESP-Brooke
 )
 # Set definitions for sources
 set_source_files_properties(${MAIN_SRCS}                            # Main definitions
-    PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${DISP_DEF} ${LVGL_DEF} ${LV_DRIVERS_DEF} ${ESP_BROOKESIA_DEF}"
+    PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${DISP_DEF} ${LVGL_DEF} ${LV_DRIVERS_DEF} ${ESP_BROOKESIA_DEF} \
+                              ${ESP_BROOKESIA_APP_DEF}"
 )
 set_source_files_properties(${LVGL_SRCS} PROPERTIES COMPILE_FLAGS "${LVGL_DEF}")
                                                                     # LVGL definitions
@@ -85,7 +88,8 @@ set_source_files_properties(${LV_DRIVER_SRCS} PROPERTIES COMPILE_FLAGS "${LV_DRI
                                                                     # lv_drivers definitions
 set_source_files_properties(${ESP_BROOKESIA_SRCS} PROPERTIES COMPILE_FLAGS "${ESP_BROOKESIA_DEF}")
                                                                     # ESP-Brookesia definitions
-set_source_files_properties(${ESP_BROOKESIA_APP_SRCS} PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF}")
+set_source_files_properties(${ESP_BROOKESIA_APP_SRCS}
+    PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF} ${ESP_BROOKESIA_APP_DEF}")
                                                                     # ESP-Brookesia apps definitions
 set_source_files_properties(${ESP_BROOKESIA_STYLESHEET_SRCS}        # ESP-Brookesia stylesheets definitions
     PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF}"

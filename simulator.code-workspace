@@ -36,7 +36,12 @@
             "list": "cpp",
             "unordered_set": "cpp",
             "vector": "cpp",
-            "initializer_list": "cpp"
+            "initializer_list": "cpp",
+            "bitset": "cpp",
+            "span": "cpp",
+            "regex": "cpp",
+            "utility": "cpp",
+            "chrono": "cpp"
         },
         "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     },

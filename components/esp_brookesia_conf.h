@@ -33,9 +33,9 @@
 #define ESP_BROOKESIA_LOG_LEVEL        (ESP_BROOKESIA_LOG_LEVEL_INFO)
 
 /* Enable debug logs for modules */
-#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_CORE                (1)
-#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_WIDGETS             (1)
-#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_PHONE               (1)
+#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_CORE                (0)
+#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_WIDGETS             (0)
+#define ESP_BROOKESIA_LOG_ENABLE_DEBUG_PHONE               (0)
 // Core
 #if ESP_BROOKESIA_LOG_ENABLE_DEBUG_CORE
 #define ESP_BROOKESIA_LOG_ENABLE_DEBUG_CORE_APP            (1)

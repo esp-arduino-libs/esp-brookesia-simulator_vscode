@@ -20,10 +20,13 @@
 #include "lv_drivers/sdl/sdl.h"
 #include <time.h>
 #include "esp_brookesia.hpp"
+#include "esp_brookesia_apps.hpp"
 /* These are built-in app examples in `esp-brookesia` library */
 #include "app_examples/phone/simple_conf/src/phone_app_simple_conf.hpp"
 #include "app_examples/phone/complex_conf/src/phone_app_complex_conf.hpp"
 #include "app_examples/phone/squareline/src/phone_app_squareline.hpp"
+
+using namespace esp_brookesia::phone::app;
 
 /*********************
  *      DEFINES
@@ -37,14 +40,17 @@
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_320_480_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_480_480_DARK_STYLESHEET()
+  #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_480_480_STYLESHEET_DARK()
 #elif (DISP_HOR_RES == 720) && (DISP_VER_RES == 1280)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_720_1280_DARK_STYLESHEET()
+  #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_720_1280_STYLESHEET_DARK()
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_800_480_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 1280)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_800_1280_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1024_600_DARK_STYLESHEET()
+  #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_1024_600_STYLESHEET_DARK()
 #elif (DISP_HOR_RES == 1280) && (DISP_VER_RES == 800)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1280_800_DARK_STYLESHEET()
 #endif
@@ -65,6 +71,10 @@
 static void hal_init(void);
 static void hal_deinit(void);
 static void* tick_thread(void *data);
+static bool settings_port_set_media_sound_volume(int volume);
+static int settings_port_get_media_sound_volume(void);
+static bool settings_port_set_media_display_brightness(int brightness);
+static int settings_port_get_media_display_brightness(void);
 
 /**********************
  *  STATIC VARIABLES
@@ -126,6 +136,8 @@ int main(int argc, char **argv)
 
     ESP_BROOKESIA_LOGI("Using display resolution: %dx%d", DISP_HOR_RES, DISP_VER_RES);
 
+    esp_brookesia_squareline_ui_comp_init();
+
     /* Create a phone object */
     ESP_Brookesia_Phone *phone = new ESP_Brookesia_Phone(disp);
     ESP_BROOKESIA_CHECK_NULL_RETURN(phone, 1, "Create phone failed");
@@ -156,6 +168,25 @@ int main(int argc, char **argv)
     PhoneAppSquareline *app_squareline = new PhoneAppSquareline();
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_squareline, 1, "Create app squareline failed");
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_squareline) >= 0), 1, "Install app squareline failed");
+
+    Settings *app_settings = new Settings(true, false);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_settings, 1, "Create app settings failed");
+    SettingsStylesheetData *app_settings_stylesheet = new SettingsStylesheetData SETTINGS_UI_STYLESHEET();
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_settings_stylesheet, 1, "Create app settings stylesheet failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_settings->addStylesheet(phone, app_settings_stylesheet), 1, "Add app settings stylesheet failed"
+    );
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_settings->activateStylesheet(app_settings_stylesheet), 1, "Activate app settings stylesheet failed"
+    );
+    app_settings->getPort().registerSetMediaDisplayBrightnessCallback(settings_port_set_media_display_brightness);
+    app_settings->getPort().registerGetMediaDisplayBrightnessCallback(settings_port_get_media_display_brightness);
+    app_settings->getPort().registerSetMediaSoundVolumeCallback(settings_port_set_media_sound_volume);
+    app_settings->getPort().registerGetMediaSoundVolumeCallback(settings_port_get_media_sound_volume);
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_settings) >= 0), 1, "Install app settings failed");
+
+    // PhoneAppStore &app_store = PhoneAppStore::getInstance();
+    // ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_store) >= 0), 1, "Install phone app store failed");
 
     /* Create a timer to update the clock */
     ESP_BROOKESIA_CHECK_NULL_RETURN(lv_timer_create(on_clock_update_timer_cb, 1000, phone), 1, "Create clock update timer failed");
@@ -205,6 +236,38 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
       phone->getHome().getRecentsScreen()->setMemoryLabel(free_kb, total_kb, 0, 0),
       "Refresh memory label failed"
     );
+}
+
+static int sound_volume = 10;
+static int display_brightness = 10;
+static bool settings_port_set_media_sound_volume(int volume)
+{
+    printf("Set media sound volume: %d\n", volume);
+    sound_volume = volume;
+
+    return true;
+}
+
+static int settings_port_get_media_sound_volume(void)
+{
+    printf("Get media sound volume: %d\n", sound_volume);
+
+    return sound_volume;
+}
+
+static bool settings_port_set_media_display_brightness(int brightness)
+{
+    printf("Set media display brightness: %d\n", brightness);
+    display_brightness = brightness;
+
+    return true;
+}
+
+static int settings_port_get_media_display_brightness(void)
+{
+    printf("Set media display brightness: %d\n", display_brightness);
+
+    return display_brightness;
 }
 
 /**
