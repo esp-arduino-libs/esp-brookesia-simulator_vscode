@@ -40,7 +40,8 @@
             "bitset": "cpp",
             "span": "cpp",
             "regex": "cpp",
-            "utility": "cpp"
+            "utility": "cpp",
+            "chrono": "cpp"
         },
         "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     },
