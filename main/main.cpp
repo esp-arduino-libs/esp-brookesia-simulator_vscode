@@ -28,6 +28,9 @@
 /*********************
  *      DEFINES
  *********************/
+/**
+ * Use the stylesheet corresponding to the resolution; otherwise, another built-in stylesheet will be used.
+ */
 #if (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_320_240_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 480)
@@ -42,6 +45,12 @@
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1024_600_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 1280) && (DISP_VER_RES == 800)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1280_800_DARK_STYLESHEET()
+#endif
+
+#define LVGL_TIMER_HANDLER_PERIOD_US  (5 * 1000)
+
+#ifdef RUN_TEST
+#define RUN_TEST_TIMEOUT_S  (5)
 #endif
 
 /**********************
@@ -124,7 +133,7 @@ int main(int argc, char **argv)
     ESP_Brookesia_PhoneStylesheet_t *stylesheet = new ESP_Brookesia_PhoneStylesheet_t EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET();
     ESP_BROOKESIA_CHECK_NULL_RETURN(stylesheet, 1, "Create phone stylesheet failed");
 
-    printf("Using stylesheet (%s)", stylesheet->core.name);
+    ESP_BROOKESIA_LOGI("Using stylesheet (%s)", stylesheet->core.name);
     ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->addStylesheet(stylesheet), 1, "Add phone stylesheet failed");
     ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->activateStylesheet(stylesheet), 1, "Activate phone stylesheet failed");
     delete stylesheet;
@@ -153,7 +162,15 @@ int main(int argc, char **argv)
         /* Periodically call the lv_task handler.
         * It could be done in a timer interrupt or an OS task too.*/
         lv_timer_handler();
-        usleep(5 * 1000);
+        usleep(LVGL_TIMER_HANDLER_PERIOD_US);
+
+#ifdef RUN_TEST
+        static uint32_t loop_cnt = 0;
+        if (++loop_cnt >= RUN_TEST_TIMEOUT_S * 1000 * 1000 / LVGL_TIMER_HANDLER_PERIOD_US) {
+            ESP_BROOKESIA_LOGW("Run test timeout");
+            break;
+        }
+#endif
     }
 
     // hal_deinit();
