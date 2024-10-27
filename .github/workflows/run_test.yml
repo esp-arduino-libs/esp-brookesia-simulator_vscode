@@ -1,4 +1,4 @@
-name: Build Test Application
+name: Build and Run Test Application
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    name: Build Test Application
+    name: Build and Run Test Application
 
     container:
       image: ubuntu:22.04
@@ -36,4 +36,10 @@ jobs:
       - name: Build Application
         working-directory: ./
         run: |
-          cmake -B ./build && make -C ./build
+          cmake -DRUN_TEST=1 -B ./build
+          make -C ./build
+
+      - name: Run Application
+        working-directory: ./
+        run: |
+          ./bin/esp_brookesia_simulator_vscode

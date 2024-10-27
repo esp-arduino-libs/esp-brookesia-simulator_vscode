@@ -8,6 +8,9 @@ set(DISP_DEF "-DDISP_HOR_RES=1024 -DDISP_VER_RES=600")  # Resolution of the disp
 set(LVGL_DEF "-DLV_CONF_INCLUDE_SIMPLE")                # Used for LVGL related codes
 set(LV_DRIVERS_DEF "-DUSE_SDL")                         # Used for lv_drivers related codes
 set(ESP_BROOKESIA_DEF "-DESP_BROOKESIA_KCONFIG_IGNORE") # Used for ESP-Brookesia related codes
+if(RUN_TEST)
+set(SIMULATOR_DEF "${SIMULATOR_DEF} -DRUN_TEST=1")                      # Flag for simulator
+endif()
 # Set C/CXX toolchain
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CMAKE_C_COMPILER /usr/bin/gcc)
@@ -37,6 +40,7 @@ set(CMAKE_C_FLAGS "-O0 -g -Wall -Wextra -Wshadow -Wundef -Wno-unused-function")
 set(CMAKE_CXX_FLAGS "-O0 -g -Wall -Wextra -Wshadow -Wundef -Wno-unused-function -Wno-unused-parameter \
                     -Wno-missing-field-initializers")
 # Set cmake options
+set(CMAKE_OBJECT_PATH_MAX 512)  # Avoid long path error in Windows
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 # Set componets directory
