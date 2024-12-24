@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////// Debug /////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Enable debug logs for modules */
-#define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG              (0)
+#define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG              (1)
 #if ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG
 #define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_MANAGER      (1)
 #define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_UI           (1)
@@ -18,7 +18,6 @@
 // Widgets
 #if ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_UI
 #define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_WIDGETS_CELL_CONTAINER   (0)
-#define ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_WIDGETS_CONNECTION_MASK  (0)
 #endif
 // Screens
 #if ESP_BROOKESIA_APPS_PHONE_SETTINGS_LOG_ENABLE_DEBUG_UI

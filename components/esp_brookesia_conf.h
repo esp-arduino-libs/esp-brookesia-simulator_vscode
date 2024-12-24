@@ -30,7 +30,7 @@
  *      - ESP_BROOKESIA_LOG_LEVEL_NONE:  No log output (least verbose)
  *
  */
-#define ESP_BROOKESIA_LOG_LEVEL        (ESP_BROOKESIA_LOG_LEVEL_ERROR)
+#define ESP_BROOKESIA_LOG_LEVEL        (ESP_BROOKESIA_LOG_LEVEL_DEBUG)
 
 /* Enable debug logs for modules */
 #define ESP_BROOKESIA_LOG_ENABLE_DEBUG_CORE                (0)
