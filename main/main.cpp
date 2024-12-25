@@ -72,7 +72,9 @@ static void hal_init(void);
 static void hal_deinit(void);
 static void* tick_thread(void *data);
 static bool settings_port_set_media_sound_volume(int volume);
+static int settings_port_get_media_sound_volume(void);
 static bool settings_port_set_media_display_brightness(int brightness);
+static int settings_port_get_media_display_brightness(void);
 
 /**********************
  *  STATIC VARIABLES
@@ -178,7 +180,9 @@ int main(int argc, char **argv)
         app_settings->activateStylesheet(app_settings_stylesheet), 1, "Activate app settings stylesheet failed"
     );
     app_settings->getPort().registerSetMediaDisplayBrightnessCallback(settings_port_set_media_display_brightness);
+    app_settings->getPort().registerGetMediaDisplayBrightnessCallback(settings_port_get_media_display_brightness);
     app_settings->getPort().registerSetMediaSoundVolumeCallback(settings_port_set_media_sound_volume);
+    app_settings->getPort().registerGetMediaSoundVolumeCallback(settings_port_get_media_sound_volume);
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_settings) >= 0), 1, "Install app settings failed");
 
     // PhoneAppStore &app_store = PhoneAppStore::getInstance();
@@ -234,18 +238,36 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     );
 }
 
+static int sound_volume = 10;
+static int display_brightness = 10;
 static bool settings_port_set_media_sound_volume(int volume)
 {
     printf("Set media sound volume: %d\n", volume);
+    sound_volume = volume;
 
     return true;
+}
+
+static int settings_port_get_media_sound_volume(void)
+{
+    printf("Get media sound volume: %d\n", sound_volume);
+
+    return sound_volume;
 }
 
 static bool settings_port_set_media_display_brightness(int brightness)
 {
     printf("Set media display brightness: %d\n", brightness);
+    display_brightness = brightness;
 
     return true;
+}
+
+static int settings_port_get_media_display_brightness(void)
+{
+    printf("Set media display brightness: %d\n", display_brightness);
+
+    return display_brightness;
 }
 
 /**
