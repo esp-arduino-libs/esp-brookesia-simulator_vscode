@@ -186,15 +186,12 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
 {
     time_t now;
     struct tm timeinfo;
-    bool is_time_pm = false;
     ESP_Brookesia_Phone *phone = (ESP_Brookesia_Phone *)t->user_data;
 
     time(&now);
     get_local_time(&timeinfo, &now);
-    is_time_pm = (timeinfo.tm_hour >= 12);
     ESP_BROOKESIA_CHECK_FALSE_EXIT(
-      phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
-      "Refresh status bar failed"
+      phone->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min), "Refresh status bar failed"
     );
 
     lv_mem_monitor_t mon;
