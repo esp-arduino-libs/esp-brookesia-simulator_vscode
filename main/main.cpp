@@ -26,7 +26,10 @@
 #include "app_examples/phone/complex_conf/src/phone_app_complex_conf.hpp"
 #include "app_examples/phone/squareline/src/phone_app_squareline.hpp"
 
+#define USE_BROOKESIA   1
+
 using namespace esp_brookesia::phone::app;
+using namespace esp_brookesia::phone_apps;
 
 /*********************
  *      DEFINES
@@ -44,6 +47,7 @@ using namespace esp_brookesia::phone::app;
 #elif (DISP_HOR_RES == 720) && (DISP_VER_RES == 1280)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_720_1280_DARK_STYLESHEET()
   #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_720_1280_STYLESHEET_DARK()
+  #define DOUBAO_STYLESHEET                               doubao::STYLESHEET_720_1280_DARK
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_800_480_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 1280)
@@ -51,6 +55,7 @@ using namespace esp_brookesia::phone::app;
 #elif (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1024_600_DARK_STYLESHEET()
   #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_1024_600_STYLESHEET_DARK()
+  #define DOUBAO_STYLESHEET                               doubao::STYLESHEET_1024_600_DARK
 #elif (DISP_HOR_RES == 1280) && (DISP_VER_RES == 800)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_1280_800_DARK_STYLESHEET()
 #endif
@@ -134,6 +139,7 @@ int main(int argc, char **argv)
     /* Initialize the HAL (display, input devices, tick) for LVGL */
     hal_init();
 
+#if USE_BROOKESIA
     ESP_BROOKESIA_LOGI("Using display resolution: %dx%d", DISP_HOR_RES, DISP_VER_RES);
 
     esp_brookesia_squareline_ui_comp_init();
@@ -156,7 +162,7 @@ int main(int argc, char **argv)
     /* Configure and begin the phone */
     ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->setTouchDevice(mouse_indev), 1, "Set touch device failed");
     ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->begin(), 1, "Begin failed");
-    // ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->getCoreHome().showContainerBorder(), 1, "Show container border failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(phone->getCoreHome().showContainerBorder(), 1, "Show container border failed");
 
     /* Install apps */
     PhoneAppSimpleConf *app_simple_conf = new PhoneAppSimpleConf();
@@ -169,6 +175,7 @@ int main(int argc, char **argv)
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_squareline, 1, "Create app squareline failed");
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_squareline) >= 0), 1, "Install app squareline failed");
 
+#ifdef SETTINGS_UI_STYLESHEET
     Settings *app_settings = new Settings(true, false);
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_settings, 1, "Create app settings failed");
     SettingsStylesheetData *app_settings_stylesheet = new SettingsStylesheetData SETTINGS_UI_STYLESHEET();
@@ -184,12 +191,38 @@ int main(int argc, char **argv)
     app_settings->getPort().registerSetMediaSoundVolumeCallback(settings_port_set_media_sound_volume);
     app_settings->getPort().registerGetMediaSoundVolumeCallback(settings_port_get_media_sound_volume);
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_settings) >= 0), 1, "Install app settings failed");
+#endif
+
+    doubao::DouBao *app_doubao = new doubao::DouBao(true, false);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao, 1, "Create app settings failed");
+    doubao::StylesheetData *app_doubao_stylesheet = new doubao::StylesheetData(DOUBAO_STYLESHEET);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao_stylesheet, 1, "Create app settings stylesheet failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_doubao->addStylesheet(phone, app_doubao_stylesheet), 1, "Add app settings stylesheet failed"
+    );
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_doubao->activateStylesheet(app_doubao_stylesheet), 1, "Activate app settings stylesheet failed"
+    );
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_doubao) >= 0), 1, "Install app ai robot failed");
 
     // PhoneAppStore &app_store = PhoneAppStore::getInstance();
     // ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_store) >= 0), 1, "Install phone app store failed");
 
     /* Create a timer to update the clock */
     ESP_BROOKESIA_CHECK_NULL_RETURN(lv_timer_create(on_clock_update_timer_cb, 1000, phone), 1, "Create clock update timer failed");
+
+#else
+
+    auto obj = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(obj, 100, 100);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xff0000), 0);
+    lv_obj_center(obj);
+    auto obj2 = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(obj2, 20, 20);
+    lv_obj_set_style_bg_color(obj2, lv_color_hex(0x00ff00), 0);
+    lv_obj_align_to(obj2, obj, LV_ALIGN_CENTER, 0, 0);
+
+#endif
 
     while(1) {
         /* Periodically call the lv_task handler.

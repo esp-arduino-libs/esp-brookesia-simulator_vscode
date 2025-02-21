@@ -41,7 +41,8 @@
             "span": "cpp",
             "regex": "cpp",
             "utility": "cpp",
-            "chrono": "cpp"
+            "chrono": "cpp",
+            "complex": "cpp"
         },
         "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     },
