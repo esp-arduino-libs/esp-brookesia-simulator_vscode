@@ -27,6 +27,7 @@
 #include "app_examples/phone/squareline/src/phone_app_squareline.hpp"
 
 using namespace esp_brookesia::phone::app;
+using namespace esp_brookesia::phone_apps;
 
 /*********************
  *      DEFINES
@@ -184,6 +185,18 @@ int main(int argc, char **argv)
     app_settings->getPort().registerSetMediaSoundVolumeCallback(settings_port_set_media_sound_volume);
     app_settings->getPort().registerGetMediaSoundVolumeCallback(settings_port_get_media_sound_volume);
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_settings) >= 0), 1, "Install app settings failed");
+
+    doubao::DouBao *app_doubao = new doubao::DouBao(true, false);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao, 1, "Create app settings failed");
+    // SettingsStylesheetData *app_doubao_stylesheet = new SettingsStylesheetData SETTINGS_UI_STYLESHEET();
+    // ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao_stylesheet, 1, "Create app settings stylesheet failed");
+    // ESP_BROOKESIA_CHECK_FALSE_RETURN(
+    //     app_doubao->addStylesheet(phone, app_doubao_stylesheet), 1, "Add app settings stylesheet failed"
+    // );
+    // ESP_BROOKESIA_CHECK_FALSE_RETURN(
+    //     app_doubao->activateStylesheet(app_doubao_stylesheet), 1, "Activate app settings stylesheet failed"
+    // );
+    ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_doubao) >= 0), 1, "Install app ai robot failed");
 
     // PhoneAppStore &app_store = PhoneAppStore::getInstance();
     // ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_store) >= 0), 1, "Install phone app store failed");
