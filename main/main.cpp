@@ -45,6 +45,7 @@ using namespace esp_brookesia::phone_apps;
 #elif (DISP_HOR_RES == 720) && (DISP_VER_RES == 1280)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_720_1280_DARK_STYLESHEET()
   #define SETTINGS_UI_STYLESHEET()                        SETTINGS_UI_720_1280_STYLESHEET_DARK()
+  #define DOUBAO_STYLESHEET                               doubao::STYLESHEET_720_1280_DARK
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
   #define EXAMPLE_ESP_BROOKESIA_PHONE_DARK_STYLESHEET()   ESP_BROOKESIA_PHONE_800_480_DARK_STYLESHEET()
 #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 1280)
@@ -170,6 +171,7 @@ int main(int argc, char **argv)
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_squareline, 1, "Create app squareline failed");
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_squareline) >= 0), 1, "Install app squareline failed");
 
+#ifdef SETTINGS_UI_STYLESHEET
     Settings *app_settings = new Settings(true, false);
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_settings, 1, "Create app settings failed");
     SettingsStylesheetData *app_settings_stylesheet = new SettingsStylesheetData SETTINGS_UI_STYLESHEET();
@@ -185,17 +187,18 @@ int main(int argc, char **argv)
     app_settings->getPort().registerSetMediaSoundVolumeCallback(settings_port_set_media_sound_volume);
     app_settings->getPort().registerGetMediaSoundVolumeCallback(settings_port_get_media_sound_volume);
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_settings) >= 0), 1, "Install app settings failed");
+#endif
 
     doubao::DouBao *app_doubao = new doubao::DouBao(true, false);
     ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao, 1, "Create app settings failed");
-    // SettingsStylesheetData *app_doubao_stylesheet = new SettingsStylesheetData SETTINGS_UI_STYLESHEET();
-    // ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao_stylesheet, 1, "Create app settings stylesheet failed");
-    // ESP_BROOKESIA_CHECK_FALSE_RETURN(
-    //     app_doubao->addStylesheet(phone, app_doubao_stylesheet), 1, "Add app settings stylesheet failed"
-    // );
-    // ESP_BROOKESIA_CHECK_FALSE_RETURN(
-    //     app_doubao->activateStylesheet(app_doubao_stylesheet), 1, "Activate app settings stylesheet failed"
-    // );
+    doubao::StylesheetData *app_doubao_stylesheet = new doubao::StylesheetData(DOUBAO_STYLESHEET);
+    ESP_BROOKESIA_CHECK_NULL_RETURN(app_doubao_stylesheet, 1, "Create app settings stylesheet failed");
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_doubao->addStylesheet(phone, app_doubao_stylesheet), 1, "Add app settings stylesheet failed"
+    );
+    ESP_BROOKESIA_CHECK_FALSE_RETURN(
+        app_doubao->activateStylesheet(app_doubao_stylesheet), 1, "Activate app settings stylesheet failed"
+    );
     ESP_BROOKESIA_CHECK_FALSE_RETURN((phone->installApp(app_doubao) >= 0), 1, "Install app ai robot failed");
 
     // PhoneAppStore &app_store = PhoneAppStore::getInstance();

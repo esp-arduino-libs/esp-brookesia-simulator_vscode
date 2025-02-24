@@ -4,7 +4,7 @@ project(esp_brookesia_simulator_vscode  LANGUAGES C CXX)
 
 # Set definitions
 set(SIMULATOR_DEF "-DSIMULATOR=1")                      # Flag for simulator
-set(DISP_DEF "-DDISP_HOR_RES=480 -DDISP_VER_RES=480")  # Resolution of the display
+set(DISP_DEF "-DDISP_HOR_RES=720 -DDISP_VER_RES=1280")  # Resolution of the display
 set(LVGL_DEF "-DLV_CONF_INCLUDE_SIMPLE")                # Used for LVGL related codes
 set(LV_DRIVERS_DEF "-DUSE_SDL")                         # Used for lv_drivers related codes
 set(ESP_BROOKESIA_DEF "-DESP_BROOKESIA_KCONFIG_IGNORE") # Used for ESP-Brookesia related codes
