@@ -4,7 +4,7 @@ project(esp_brookesia_simulator_vscode  LANGUAGES C CXX)
 
 # Set definitions
 set(SIMULATOR_DEF "-DSIMULATOR=1")                      # Flag for simulator
-set(DISP_DEF "-DDISP_HOR_RES=1024 -DDISP_VER_RES=600")  # Resolution of the display
+set(DISP_DEF "-DDISP_HOR_RES=480 -DDISP_VER_RES=480")  # Resolution of the display
 set(LVGL_DEF "-DLV_CONF_INCLUDE_SIMPLE")                # Used for LVGL related codes
 set(LV_DRIVERS_DEF "-DUSE_SDL")                         # Used for lv_drivers related codes
 set(ESP_BROOKESIA_DEF "-DESP_BROOKESIA_KCONFIG_IGNORE") # Used for ESP-Brookesia related codes
@@ -51,7 +51,8 @@ set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/components)
 set(LVGL_DIR ${COMPONENTS_DIR}/lvgl)
 set(LV_DRIVERS_DIR ${COMPONENTS_DIR}/lv_drivers)
 set(ESP_BROOKESIA_DIR ${COMPONENTS_DIR}/esp-brookesia/src)
-set(ESP_BROOKESIA_APP_DIR ${COMPONENTS_DIR}/esp-brookesia-apps/src)
+# set(ESP_BROOKESIA_APP_DIR ${COMPONENTS_DIR}/esp-brookesia-apps/src)
+set(ESP_BROOKESIA_APP_DIR "")
 set(ESP_BROOKESIA_STYLESHEET_DIR ${COMPONENTS_DIR}/esp-brookesia-stylesheet)
 
 # Include componets directories
@@ -71,7 +72,11 @@ file(GLOB_RECURSE LVGL_SRCS "${LVGL_DIR}/src/*.c")                  # LVGL sourc
 file(GLOB_RECURSE LV_DRIVER_SRCS "${LV_DRIVERS_DIR}/*.c")           # lv_drivers sources
 file(GLOB_RECURSE ESP_BROOKESIA_SRCS "${ESP_BROOKESIA_DIR}/*.c" "${ESP_BROOKESIA_DIR}/*.cpp")
                                                                     # ESP-Brookesia sources
-file(GLOB_RECURSE ESP_BROOKESIA_APP_SRCS "${ESP_BROOKESIA_APP_DIR}/*.c" "${ESP_BROOKESIA_APP_DIR}/*.cpp")
+if(NOT "${ESP_BROOKESIA_APP_DIR}" STREQUAL "")
+    file(GLOB_RECURSE ESP_BROOKESIA_APP_SRCS "${ESP_BROOKESIA_APP_DIR}/*.c" "${ESP_BROOKESIA_APP_DIR}/*.cpp")
+else()
+    set(ESP_BROOKESIA_APP_SRCS "")
+endif()
                                                                     # ESP-Brookesia apps sources
 file(GLOB_RECURSE ESP_BROOKESIA_STYLESHEET_SRCS                     # ESP-Brookesia stylesheets sources
     "${ESP_BROOKESIA_STYLESHEET_DIR}/*.c"
@@ -88,8 +93,10 @@ set_source_files_properties(${LV_DRIVER_SRCS} PROPERTIES COMPILE_FLAGS "${LV_DRI
                                                                     # lv_drivers definitions
 set_source_files_properties(${ESP_BROOKESIA_SRCS} PROPERTIES COMPILE_FLAGS "${ESP_BROOKESIA_DEF}")
                                                                     # ESP-Brookesia definitions
-set_source_files_properties(${ESP_BROOKESIA_APP_SRCS}
-    PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF} ${ESP_BROOKESIA_APP_DEF}")
+if(NOT "${ESP_BROOKESIA_APP_DIR}" STREQUAL "")
+    set_source_files_properties(${ESP_BROOKESIA_APP_SRCS}
+        PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF} ${ESP_BROOKESIA_APP_DEF}")
+endif()
                                                                     # ESP-Brookesia apps definitions
 set_source_files_properties(${ESP_BROOKESIA_STYLESHEET_SRCS}        # ESP-Brookesia stylesheets definitions
     PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF}"
