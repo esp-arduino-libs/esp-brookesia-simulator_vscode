@@ -1,12 +1,15 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <unistd.h>
+#include <thread>
 #include "esp_brookesia.hpp"
 #include "app_examples/speaker/simple_conf/src/speaker_app_simple_conf.hpp"
 #include "app_examples/speaker/complex_conf/src/speaker_app_complex_conf.hpp"
 #include "app_examples/speaker/squareline/src/speaker_app_squareline.hpp"
 
 using namespace esp_brookesia::systems::speaker;
+using namespace esp_brookesia::apps::speaker;
 
 /*********************
  *      DEFINES
@@ -90,12 +93,12 @@ int speaker_main(void)
     esp_brookesia_squareline_ui_comp_init();
 
     /* Create a speaker object */
-    ESP_Brookesia_Speaker *speaker = new ESP_Brookesia_Speaker();
+    Speaker *speaker = new Speaker();
     ESP_BROOKESIA_CHECK_NULL_RETURN(speaker, 1, "Create speaker failed");
 
 #ifdef EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET
     /* Add external stylesheet and activate it */
-    ESP_Brookesia_SpeakerStylesheet_t *stylesheet = new ESP_Brookesia_SpeakerStylesheet_t EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET;
+    SpeakerStylesheet_t *stylesheet = new SpeakerStylesheet_t EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET;
     ESP_BROOKESIA_CHECK_NULL_RETURN(stylesheet, 1, "Create speaker stylesheet failed");
 
     ESP_BROOKESIA_LOGI("Using stylesheet (%s)", stylesheet->core.name);
@@ -122,6 +125,36 @@ int speaker_main(void)
     /* Create a timer to update the clock */
     ESP_BROOKESIA_CHECK_NULL_RETURN(lv_timer_create(on_clock_update_timer_cb, 1000, speaker), 1, "Create clock update timer failed");
 
+    std::thread([&]() {
+        Speaker *system = speaker;
+
+        // Expression cycling variables
+        uint32_t expression_index = 0;
+
+        // Complete array of expressions to cycle through
+        robot_face_type_t expressions[10] = {
+            FACE_HAPPY,
+            FACE_ANGRY,
+            FACE_LISTENING,
+            FACE_SURPRISED,
+            FACE_SLEEPY,
+            FACE_THINKING,
+            FACE_CUTE,
+            FACE_ALERT,
+            FACE_WORRIED,
+            FACE_SERIOUS
+        };
+
+        // Animation loop
+        while (1) {
+            // Cycle to next expression
+            expression_index = (expression_index + 1) % 10;
+            system->getHome().getAI_Face()->setExpression(expressions[expression_index]);
+            ESP_LOGI("Speaker", "Switching to expression: %d\n", expressions[expression_index]);
+            sleep(5);
+        }
+    }).detach();
+
     return 0;
 }
 
@@ -133,22 +166,14 @@ static void on_clock_update_timer_cb(struct _lv_timer_t *t)
     time_t now;
     struct tm timeinfo;
     bool is_time_pm = false;
-    ESP_Brookesia_Speaker *speaker = (ESP_Brookesia_Speaker *)t->user_data;
+    Speaker *speaker = (Speaker *)t->user_data;
 
     time(&now);
     get_local_time(&timeinfo, &now);
     is_time_pm = (timeinfo.tm_hour >= 12);
-    ESP_BROOKESIA_CHECK_FALSE_EXIT(
-      speaker->getHome().getStatusBar()->setClock(timeinfo.tm_hour, timeinfo.tm_min, is_time_pm),
-      "Refresh status bar failed"
-    );
 
     lv_mem_monitor_t mon;
     lv_mem_monitor(&mon);
     uint32_t free_kb = mon.free_size / 1024;
     uint32_t total_kb = mon.total_size / 1024;
-    ESP_BROOKESIA_CHECK_FALSE_EXIT(
-      speaker->getHome().getRecentsScreen()->setMemoryLabel(free_kb, total_kb, 0, 0),
-      "Refresh memory label failed"
-    );
 }

@@ -42,7 +42,12 @@
             "regex": "cpp",
             "utility": "cpp",
             "chrono": "cpp",
-            "complex": "cpp"
+            "complex": "cpp",
+            "*.def": "cpp",
+            "typeindex": "cpp",
+            "typeinfo": "cpp",
+            "*.ipp": "cpp",
+            "*.inc": "c"
         },
         "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     },

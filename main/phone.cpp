@@ -2,6 +2,7 @@
  *      INCLUDES
  *********************/
 #include "esp_brookesia.hpp"
+#include "systems/phone/stylesheets/480_480/dark/stylesheet.h"
 #include "app_examples/phone/simple_conf/src/phone_app_simple_conf.hpp"
 #include "app_examples/phone/complex_conf/src/phone_app_complex_conf.hpp"
 

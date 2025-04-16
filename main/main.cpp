@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <mutex>
+#include <thread>
 #include "lv_drv_conf.h"
 #include "lvgl/lvgl.h"
 #include "lvgl/examples/lv_examples.h"
@@ -20,6 +22,7 @@
 #include "lv_drivers/sdl/sdl.h"
 #include <time.h>
 #include "esp_brookesia.hpp"
+#include "ai_framework/hmi/anim_face/robot_face.h"
 
 #define USE_BROOKESIA   1
 
@@ -35,6 +38,15 @@
 /**********************
  *      TYPEDEFS
  **********************/
+// Define expression switching parameters
+#define EXPRESSION_DURATION    100   // Duration for each expression (in frames) - reduced from 300
+
+// Add FPS calculation defines and variables
+#define FPS_UPDATE_INTERVAL_MS 1000  // Update FPS display every second
+#define MOVING_AVERAGE_SAMPLES  10   // Number of samples for moving average
+
+// Segmented rendering configuration
+#define SEGMENT_HEIGHT         40    // Height of each segment (can be adjusted based on memory availability)
 
 /**********************
  *  STATIC PROTOTYPES
@@ -42,12 +54,19 @@
 static void hal_init(void);
 static void hal_deinit(void);
 static void* tick_thread(void *data);
+static float calculate_fps(void);
 
 /**********************
  *  STATIC VARIABLES
  **********************/
 static pthread_t thr_tick;    /* thread */
 static bool end_tick = false; /* flag to terminate thread */
+
+static robot_face_t *g_face = NULL;
+static lv_obj_t * canvas = NULL;
+static lv_obj_t *obj_img_run_particles = NULL;
+static std::mutex face_mtx;
+static graphic_buffer_t *face_buffer = NULL;
 
 /**********************
  *      MACROS
@@ -76,6 +95,7 @@ static lv_disp_t *disp = NULL;
 static lv_indev_t *mouse_indev = NULL;
 static lv_indev_t *kb_indev = NULL;
 static lv_indev_t *enc_indev = NULL;
+static std::mutex lv_mtx;
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -100,27 +120,138 @@ int main(int argc, char **argv)
 
     esp_brookesia_squareline_ui_comp_init();
 
-    phone_main();
-    // speaker_main();
+    // phone_main();
+    speaker_main();
 
 #else
 
-    auto obj = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(obj, 100, 100);
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0xff0000), 0);
-    lv_obj_center(obj);
-    auto obj2 = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(obj2, 20, 20);
-    lv_obj_set_style_bg_color(obj2, lv_color_hex(0x00ff00), 0);
-    lv_obj_align_to(obj2, obj, LV_ALIGN_CENTER, 0, 0);
+    canvas = lv_canvas_create(lv_scr_act());
+    lv_obj_set_size(canvas, DISP_HOR_RES, DISP_VER_RES);
+    lv_obj_clear_flag(canvas, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_pos(canvas, 0, 0);
+
+    obj_img_run_particles = lv_img_create(canvas);
+    lv_obj_set_align(obj_img_run_particles, LV_ALIGN_CENTER);
+
+    // Initialize graphics library
+    graphic_flush_cfg_t flush_cfg = {
+        .flush = [](void *buffer, int x_start, int y_start, int x_end, int y_end, void *user_data) {
+            // std::lock_guard<std::mutex> lock(lv_mtx);
+            lv_canvas_set_buffer(canvas, buffer, DISP_HOR_RES, DISP_VER_RES, LV_IMG_CF_TRUE_COLOR);
+            return true;
+        },
+        .check_flush_ready = [](int timeout_ms, void *user_data) {
+            // usleep(timeout_ms * 1000);
+            return true;
+        },
+        .user_data = NULL
+    };
+    graphic_init(&flush_cfg);
+
+    // Graphics buffer and memory allocation
+    uint16_t *draw_buf = NULL;
+    size_t buffer_size = 0;
+
+    // Using full-screen buffer - higher memory usage but better performance
+    printf("Creating full-screen graphics buffer...\n");
+    buffer_size = DISP_HOR_RES * DISP_VER_RES * sizeof(uint16_t);
+    draw_buf = (uint16_t *)calloc(buffer_size, 1);
+    if (!draw_buf) {
+        printf("Failed to allocate memory for full-screen buffer\n");
+        return 1;
+    }
+
+    // Create standard full-screen buffer
+    face_buffer = graphic_create_buffer(
+        DISP_HOR_RES,          // Width
+        DISP_VER_RES,          // Height
+        draw_buf                // Buffer
+    );
+
+    if (!face_buffer) {
+        printf("Failed to create graphics buffer");
+        free(draw_buf);
+        return 1;
+    }
+
+    // Print memory usage information
+    printf("Allocated %d bytes for graphics buffer (%.2f KB)\n",
+             (int)buffer_size, buffer_size / 1024.0f);
+
+    // Initialize robot face
+    robot_face_t *face = NULL;
+    robot_face_init(&face, FACE_HAPPY);  // Start with happy expression
+
+    // Save to global variable for rendering callback
+    g_face = face;
+
+    // Initialize FPS timer
+    uint32_t last_fps_tick = SDL_GetTicks();
+
+    // Create robot face rendering task
+    lv_timer_create([] (lv_timer_t *timer) {
+          std::lock_guard<std::mutex> face_lock(face_mtx);
+
+          // Update animation state
+          robot_face_update(g_face);
+
+          // Using full-screen buffer approach - clear, render, flush
+          graphic_clear(face_buffer, COLOR_BLACK);
+          robot_face_render(g_face, face_buffer, DISP_HOR_RES / 2, DISP_VER_RES / 2);
+          graphic_flush(face_buffer, 0, 0);
+
+          // Calculate FPS
+          calculate_fps();
+      }, 30, NULL);
+
+      std::thread([&]() {
+          // Expression cycling variables
+          uint32_t expression_index = 0;
+
+          // Complete array of expressions to cycle through
+          robot_face_type_t expressions[10] = {
+              FACE_HAPPY,
+              FACE_ANGRY,
+              FACE_LISTENING,
+              FACE_SURPRISED,
+              FACE_SLEEPY,
+              FACE_THINKING,
+              FACE_CUTE,
+              FACE_ALERT,
+              FACE_WORRIED,
+              FACE_SERIOUS
+          };
+
+          // Animation state variables
+          uint32_t frame_count = 0;
+          std::unique_lock<std::mutex> lock(face_mtx);
+          lock.unlock();
+
+          // Animation loop
+          while (1) {
+            // Cycle to next expression
+            expression_index = (expression_index + 1) % 10;
+            ESP_LOGI(TAG, "Switching to expression: %d\n", expressions[expression_index]);
+
+            // Set new expression
+            lock.lock();
+            robot_face_set_type(g_face, expressions[expression_index]);
+            lock.unlock();
+
+            sleep(5);
+          }
+      }).detach();
 
 #endif
 
+    std::unique_lock<std::mutex> lock(lv_mtx);
     while(1) {
         /* Periodically call the lv_task handler.
         * It could be done in a timer interrupt or an OS task too.*/
         lv_timer_handler();
+        lock.unlock();
         usleep(LVGL_TIMER_HANDLER_PERIOD_US);
+        lock.lock();
 
 #ifdef RUN_TEST
         static uint32_t loop_cnt = 0;
@@ -269,4 +400,48 @@ static void* tick_thread(void *data) {
   }
 
   return NULL;
+}
+
+/**
+ * @brief Calculate and return current FPS (frames per second)
+ *
+ * @return float Current FPS value as moving average
+ */
+static float calculate_fps(void) {
+    static uint32_t frame_count_fps = 0;
+    static uint32_t last_fps_tick = 0;
+    static float fps_history[MOVING_AVERAGE_SAMPLES] = {0};
+    static int fps_history_index = 0;
+    static float current_fps = 0;
+
+    frame_count_fps++;
+
+    uint32_t current_tick = SDL_GetTicks(); // Use SDL_GetTicks() to get milliseconds on Linux
+    uint32_t elapsed = current_tick - last_fps_tick;
+
+    // Update FPS calculation once per second
+    if (elapsed >= FPS_UPDATE_INTERVAL_MS) {
+        // Calculate FPS
+        float new_fps = (1000.0f * frame_count_fps) / elapsed;
+
+        // Add to moving average
+        fps_history[fps_history_index] = new_fps;
+        fps_history_index = (fps_history_index + 1) % MOVING_AVERAGE_SAMPLES;
+
+        // Calculate average FPS
+        float total = 0;
+        for (int i = 0; i < MOVING_AVERAGE_SAMPLES; i++) {
+            total += fps_history[i];
+        }
+        current_fps = total / MOVING_AVERAGE_SAMPLES;
+
+        // Reset counters
+        frame_count_fps = 0;
+        last_fps_tick = current_tick;
+
+        // Log FPS
+        printf("Current FPS: %.2f\n", current_fps);
+    }
+
+    return current_fps;
 }
