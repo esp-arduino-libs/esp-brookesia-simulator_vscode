@@ -70,7 +70,7 @@ include_directories(
 file(GLOB_RECURSE MAIN_SRCS "${MAIN_DIR}/*.c"  "${MAIN_DIR}/*.cpp") # Main sources
 file(GLOB_RECURSE LVGL_SRCS "${LVGL_DIR}/src/*.c")                  # LVGL sources
 file(GLOB_RECURSE LV_DRIVER_SRCS "${LV_DRIVERS_DIR}/*.c")           # lv_drivers sources
-file(GLOB_RECURSE ESP_BROOKESIA_SRCS "${ESP_BROOKESIA_DIR}/*.c" "${ESP_BROOKESIA_DIR}/*.cpp")
+# file(GLOB_RECURSE ESP_BROOKESIA_SRCS "${ESP_BROOKESIA_DIR}/*.c" "${ESP_BROOKESIA_DIR}/*.cpp")
                                                                     # ESP-Brookesia sources
 if(NOT "${ESP_BROOKESIA_APP_DIR}" STREQUAL "")
     file(GLOB_RECURSE ESP_BROOKESIA_APP_SRCS "${ESP_BROOKESIA_APP_DIR}/*.c" "${ESP_BROOKESIA_APP_DIR}/*.cpp")
@@ -91,7 +91,7 @@ set_source_files_properties(${LVGL_SRCS} PROPERTIES COMPILE_FLAGS "${LVGL_DEF}")
                                                                     # LVGL definitions
 set_source_files_properties(${LV_DRIVER_SRCS} PROPERTIES COMPILE_FLAGS "${LV_DRIVERS_DEF} ${DISP_DEF}")
                                                                     # lv_drivers definitions
-set_source_files_properties(${ESP_BROOKESIA_SRCS} PROPERTIES COMPILE_FLAGS "${ESP_BROOKESIA_DEF}")
+# set_source_files_properties(${ESP_BROOKESIA_SRCS} PROPERTIES COMPILE_FLAGS "${ESP_BROOKESIA_DEF}")
                                                                     # ESP-Brookesia definitions
 if(NOT "${ESP_BROOKESIA_APP_DIR}" STREQUAL "")
     set_source_files_properties(${ESP_BROOKESIA_APP_SRCS}
@@ -101,12 +101,16 @@ endif()
 set_source_files_properties(${ESP_BROOKESIA_STYLESHEET_SRCS}        # ESP-Brookesia stylesheets definitions
     PROPERTIES COMPILE_FLAGS "${SIMULATOR_DEF} ${ESP_BROOKESIA_DEF}"
 )
+
+# Add esp-brookesia component
+add_subdirectory(${COMPONENTS_DIR}/esp-brookesia)
+
 # Add C/CXX sources
 add_executable(esp_brookesia_simulator_vscode
     ${MAIN_SRCS}
     ${LVGL_SRCS}
     ${LV_DRIVER_SRCS}
-    ${ESP_BROOKESIA_SRCS}
+    # ${ESP_BROOKESIA_SRCS}
     ${ESP_BROOKESIA_APP_SRCS}
     ${ESP_BROOKESIA_STYLESHEET_SRCS}
 )
@@ -115,6 +119,7 @@ add_executable(esp_brookesia_simulator_vscode
 find_package(SDL2 REQUIRED)
 target_link_libraries(esp_brookesia_simulator_vscode SDL2main)
 target_link_libraries(esp_brookesia_simulator_vscode SDL2)
+target_link_libraries(esp_brookesia_simulator_vscode esp-brookesia)
 
 # Add target: clean_build (command: make clean_build)
 add_custom_target(clean_build

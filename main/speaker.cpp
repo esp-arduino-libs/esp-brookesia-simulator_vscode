@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <thread>
 #include "esp_brookesia.hpp"
+#include "systems/speaker/stylesheets/stylesheets.h"
 #include "app_examples/speaker/simple_conf/src/speaker_app_simple_conf.hpp"
 #include "app_examples/speaker/complex_conf/src/speaker_app_complex_conf.hpp"
 #include "app_examples/speaker/squareline/src/speaker_app_squareline.hpp"
@@ -17,23 +18,23 @@ using namespace esp_brookesia::apps::speaker;
 /**
  * Use the stylesheet corresponding to the resolution; otherwise, another built-in stylesheet will be used.
  */
-// #if (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_320_240_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 480)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_320_480_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_480_480_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 720) && (DISP_VER_RES == 1280)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_720_1280_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_800_480_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 1280)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_800_1280_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_1024_600_DARK_STYLESHEET
-// #elif (DISP_HOR_RES == 1280) && (DISP_VER_RES == 800)
-//   #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_1280_800_DARK_STYLESHEET
-// #endif
+#if (DISP_HOR_RES == 320) && (DISP_VER_RES == 240)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_240_240_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 320) && (DISP_VER_RES == 480)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_320_480_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 480) && (DISP_VER_RES == 480)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_480_480_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 720) && (DISP_VER_RES == 1280)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_720_1280_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 480)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_800_480_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 800) && (DISP_VER_RES == 1280)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_800_1280_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 1024) && (DISP_VER_RES == 600)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_1024_600_DARK_STYLESHEET
+#elif (DISP_HOR_RES == 1280) && (DISP_VER_RES == 800)
+    #define EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET   ESP_BROOKESIA_SPEAKER_1280_800_DARK_STYLESHEET
+#endif
 
 #define LVGL_TIMER_HANDLER_PERIOD_US  (5 * 1000)
 
@@ -98,7 +99,7 @@ int speaker_main(void)
 
 #ifdef EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET
     /* Add external stylesheet and activate it */
-    SpeakerStylesheet_t *stylesheet = new SpeakerStylesheet_t EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET;
+    SpeakerStylesheet_t *stylesheet = new SpeakerStylesheet_t(EXAMPLE_ESP_BROOKESIA_SPEAKER_DARK_STYLESHEET);
     ESP_BROOKESIA_CHECK_NULL_RETURN(stylesheet, 1, "Create speaker stylesheet failed");
 
     ESP_BROOKESIA_LOGI("Using stylesheet (%s)", stylesheet->core.name);
@@ -132,7 +133,8 @@ int speaker_main(void)
         uint32_t expression_index = 0;
 
         // Complete array of expressions to cycle through
-        robot_face_type_t expressions[10] = {
+        robot_face_type_t expressions[FACE_MAX] = {
+#if defined(ROBOT_FACE_ENABLE_LEGACY)
             FACE_HAPPY,
             FACE_ANGRY,
             FACE_LISTENING,
@@ -142,18 +144,28 @@ int speaker_main(void)
             FACE_CUTE,
             FACE_ALERT,
             FACE_WORRIED,
-            FACE_SERIOUS
+            FACE_SERIOUS,
+#endif
+            FACE_RECT,
+            FACE_WRONGED,
+            FACE_FURIOUS,
+            FACE_GLAD
         };
+
+        auto face = system->getHome().getAI_Face();
 
         // Animation loop
         while (1) {
+            sleep(10);
+
             // Cycle to next expression
-            expression_index = (expression_index + 1) % 10;
-            system->getHome().getAI_Face()->setExpression(expressions[expression_index]);
+            expression_index = (expression_index + 1) % FACE_MAX;
+            face->setExpression(expressions[expression_index]);
             ESP_LOGI("Speaker", "Switching to expression: %d\n", expressions[expression_index]);
-            sleep(5);
         }
     }).detach();
+
+    sleep(1);
 
     return 0;
 }
